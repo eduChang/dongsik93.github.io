@@ -798,7 +798,6 @@
                 ],
             }),
             methods:{
-                
                 logout () {
                     const signUpPath = '/rest-auth/logout/'
 
@@ -837,8 +836,8 @@
                                         console.log(r)
                                         const movies = r.data
                                         this.movies = movies.map((m)=>{
+                                            // 데이터 못 가져오는 것들 처리
                                             const part = m.Participating * 1
-                                            // 수정
                                             const reple = eval(m.score_reples)
                                             const genre = eval(m.genres)
                                             const act_img = eval(m.actors_img)
@@ -889,37 +888,8 @@
                         .catch(e => {
                             console.log(e)
                     })
-                },
-                
-                // dataGet(){
-                //     axios.get(`${this.serverUrl}/api/v1/movies`,{'headers':{'Authorization':`'JWT ${this.token}'`}})
-                //         .then((r)=>{
-                //             console.log(r)
-                //             const movies = r.data
-                //             this.movies = movies.map((m)=>{
-                //                 return {...m, newScore:""}
-                //             })
-                //         })
-                //         .catch((e)=>{
-                //             console.log(e)
-                //         })
-                // }
-
+                },  
             },
-            // mounted:function(){
-            //     axios.get(`${this.serverUrl}/api/v1/movies`,{'headers':{'Authorization':'JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo3LCJ1c2VybmFtZSI6ImRhdGEiLCJleHAiOjE1NTc5MDMyNjMsImVtYWlsIjoiZGF0YUBuYXZlci5jb20ifQ.QQ2lQmsACE8SME3srDIRcjItS5MkO7OeKNqUEADBzDs'}})
-            //     .then((r)=>{
-            //         console.log(r)
-            //         const movies = r.data
-            //         this.movies = movies.map((m)=>{
-            //             return {...m, newScore:""}
-            //         })
-                    
-
-            //     })
-            //     .catch((e)=>{console.log(e)})
-            // },
-
         })
     </script>
 
