@@ -5,115 +5,832 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <!-- vuetify -->
+    <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <!-- fontawesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+    <!-- mdi -->
+    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/3.6.95/css/materialdesignicons.min.css">
+    <!-- google font -->
+    <link href="https://fonts.googleapis.com/css?family=Poor+Story|Pacifico|Gugi|Sunflower" rel="stylesheet">
+    <!-- swiper -->
     <style>
-        .completed{
-            text-decoration: line-through;
-            opacity: 0.6;
+        h1, h2 {
+            font-weight: normal;
         }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            display: inline-block;
+            margin: 0 10px;
+        }
+        a {
+            color: #42b983;
+        }
+        .btn-lg {
+            width: 100%;
+        }
+        .panel {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 100px auto;
+        }
+
+        .card {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+            transition: all .5s;
+            backface-visibility: hidden;
+        }
+
+        .front {
+            z-index: 1;
+        }
+
+        .back {
+            z-index: 2;
+            transform: rotateY(-180deg);
+        }
+
+        .panel:hover .front {
+            z-index: 1;
+            transform: rotateY(180deg);
+        }
+
+        .panel:hover .back {
+            z-index: 2;
+            transform: rotateY(0deg);
+        }
+
     </style>
-    <head>
-        <!-- Vue -->
-        <script src="https://unpkg.com/vue/dist/vue.js"></script>
-        <!-- Firebase -->
-        <script src="https://gstatic.com/firebasejs/4.2.0/firebase.js"></script>
-        <!-- VueFire -->
-        <script src="https://unpkg.com/vuefire/dist/vuefire.js"></script>
-    </head>
 </head>
 <body>
 
     <div id="app">
-        <h1>{{title}}</h1>
-        <!-- 목록 선택 -->
-        <select v-model="status">
-            <option value="all">전체보기</option>
-            <option value="active">할일</option>
-            <option value="completed">한일</option>
-        </select>
+        <div v-if="!token">
+            <!-- 첫 화면  -->
+            <v-app id="inspire" style="font-family: 'Poor Story', cursive;">
+                <v-parallax dark src="http://t1.daumcdn.net/liveboard/h21/8c2be2ede24845dca9c4056cd5d70849.JPG" style="height:100%">
+                    <h3 style="margin-left:15px; font-family: 'Pacifico', cursive;">Recommand Movie</h3>
+                    <v-layout   justify-start >
+                        <v-container style="margin-left:0px;">
+                                <v-flex style="margin-top:25px;">
+                                    <h1 class="mb-3" style="font-family: 'Poor Story', cursive; font-size:50px;">내가 추천하는</h1>
+                                </v-flex>
+                                <v-flex>
+                                    <h1 class="mb-3" style="font-family: 'Poor Story', cursive; font-size:50px;">영화 평점 사이트</h1>
+                                </v-flex>
+                                <v-flex>
+                                    <h3>Watch movie & Recommand  !</h4>
+                                </v-flex>
+                                <v-flex style="margin-top:25px;">
+                                    <v-dialog v-model="dialog" width="500">
+                                        <template v-slot:activator="{ on }">
+                                            <v-btn color="grey lighten-2" dark v-on="on" style="color:black">
+                                                Login
+                                            </v-btn>
+                                        </template>  
+                                        <v-card>
+                                            <v-toolbar cards >
+                                                <v-card-title class="title font-weight-regular">Login</v-card-title>
+                                                <v-spacer></v-spacer>
+                                                <v-btn icon v-model="dialog" @click="dialog = false">
+                                                    <v-icon>fas fa-times</v-icon>
+                                                </v-btn>
+                                            
+                                            </v-toolbar>
+                                            <v-form
+                                            ref="form1"
+                                            v-model="form1"
+                                            class="pa-3 pt-4"
+                                            lazy-validation
+                                                >
+                                                <v-card-text>
+                                                    <v-text-field
+                                                    v-model="loginUsername"
+                                                    label="User Name"
+                                                    color="deep-purple"
+                                                    required
+                                                    ></v-text-field>                            
+                                                </v-card-text>
 
-        <!-- todo추가 -->
-        <!-- 엔터키가 눌렸을 때 addTodo실행 -->
-        <input type="text" v-model="newTodo" @keyup.enter="addTodo">
+                                                <v-card-text>
+                                                    <v-text-field
+                                                    v-model="loginEmail"
+                                                    label="Email Address"
+                                                    color="deep-purple"
+                                                    required
+                                                    ></v-text-field>
+                                                </v-card-text>
+                                                <v-card-text>
+                                                    <v-text-field
+                                                    v-model="loginPassword"
+                                                    :counter="20"
+                                                    label="password"
+                                                    color="deep-purple"
+                                                    required
+                                                    type="password"
+                                                    @keyup.enter="login"
+                                                    ></v-text-field>
+                                                </v-card-text>
+                                            </v-form>
+                                            <v-divider></v-divider>
+                        
+                                            <v-card-actions>
+                                                <v-spacer></v-spacer>
+                                                <v-btn color="deep-purple" class="white--text" :disabled="!form1" depressed  @click="login">
+                                                    submit
+                                                </v-btn>
+                                            </v-card-actions>
+                                        </v-card>
+                                    </v-dialog>
 
-        <!-- 클래스는 이렇게 적어야 됨. completed가 true이면 작동, false이면 작동안함 -->
-        <!-- v-bind:key 를 통해 체크박스 오류 해결-->
-        <li v-for="todo in todosByStatus()" v-bind:class="{completed: todo.completed}" v-bind:key="todo.id">
-            <!-- 체크박스 & 양방향 바인딩 -->
-            <!-- v-model에 의해 completed값이 true인 애들은 체크박스에 체크된 상태로 나옴 -->
-            <input type="checkbox" v-model="todo.completed" @change="updateTodo(todo)">
-            {{todo.content}}
-            <button v-if="todo.completed" @click="delTodo(todo)">삭제</button>
-        </li>
+                                        <v-dialog v-model="singupDialog">
+                                            <template v-slot:activator="{ on }">
+                                                <v-btn color="grey lighten-2" v-on="on">
+                                                    signup
+                                                </v-btn>
+                                            </template>
+                                            <v-card class="mx-auto" style="max-width: 500px;">
+                                                <v-toolbar cards >
+                                                    <v-card-title class="title font-weight-regular">Signup</v-card-title>
+                                                    <v-spacer></v-spacer>
+                                                    <v-btn icon v-model="singupDialog" @click="singupDialog = false">
+                                                        <v-icon>fas fa-times</v-icon>
+                                                    </v-btn>
+                                                    
+                                                </v-toolbar>
+
+                                                <!-- signup -->
+                                                <v-form
+                                                    ref="form2"
+                                                    v-model="form2"
+                                                    class="pa-3 pt-4"
+                                                    lazy-validation
+                                                >
+                                                    <v-text-field
+                                                    v-model="signupUsername"
+                                                    box
+                                                    color="deep-purple"
+                                                    label="username"
+            
+                                                    ></v-text-field>
+                                                    <v-text-field
+                                                    v-model="signupEmail"
+                                                    :rules="[rules.email]"
+                                                    box
+                                                    color="deep-purple"
+                                                    label="Email address"
+                                                    type="email"
+                                                    required
+                                                    ></v-text-field>
+                                                    
+                                                    <v-text-field
+                                                    v-model="signupPassword"
+                                                    :rules="[rules.password, rules.length(6)]"
+                                                    box
+                                                    color="deep-purple"
+                                                    counter="20"
+                                                    label="Password"
+                                                    style="min-height: 96px"
+                                                    type="password"
+                                                    required
+                                                    ></v-text-field>
+                                                
+                                                </v-form>
+                                                <v-divider></v-divider>
+                                                <v-card-actions>
+                                                    <v-btn
+                                                    flat
+                                                    @click="$refs.form2.reset()"
+                                                    >
+                                                    Clear
+                                                    </v-btn>
+                                                    <v-spacer></v-spacer>
+                                                    
+                                                    <v-dialog v-model="signupStatus">
+                                                        <template v-slot:activator="{ on }">
+                                                            <v-btn :disabled="!form2" class="white--text" color="deep-purple" depressed
+                                                            @click="[signup(), signupStatus=true]" v-on="on"
+                                                            >Submit</v-btn>
+                                                        </template>
+                                                        <v-card v-if="signupStatus">
+                                                            <v-card-title
+                                                                class="headline grey lighten-2"
+                                                                primary-title
+                                                            >
+                                                                로그인을 원하시면 ehdtlr9376@naver.com으로 메일 보내주세요
+                                                            </v-card-title>
+                                                            <v-card-text style="font-size:20px;">
+                                                                You are now our memeber
+                                                            </v-card-text>
+                                                            <v-divider></v-divider>
+                                                            <v-card-actions>
+                                                                <v-spacer></v-spacer>
+                                                                <v-btn
+                                                                    color="primary"
+                                                                    flat
+                                                                    @click="singupDialog = false"
+                                                                >
+                                                                    ok
+                                                                </v-btn>
+                                                            </v-card-actions>
+                                                        </v-card>
+                                                        <v-card v-else>
+                                                            <v-card-title
+                                                                class="headline grey lighten-2"
+                                                                primary-title
+                                                            >
+                                                                회원가입 다시 해주세요
+                                                            </v-card-title>
+                                                            <v-card-text style="font-size:20px">
+                                                                    Signup Fail
+                                                            </v-card-text>
+                                                            <v-divider></v-divider>
+                                                            <v-card-actions>
+                                                                <v-spacer></v-spacer>
+                                                                <v-btn
+                                                                    color="primary"
+                                                                    flat
+                                                                    @click="signupStatus = false"
+                                                                >
+                                                                    ok
+                                                                </v-btn>
+                                                            </v-card-actions>                                                        
+                                                        </v-card>
+                                                    </v-dialog>
+                                                </v-card-actions>
+                                            </v-card>
+                                        </v-dialog>
+                                    </v-flex>
+                            </v-container>
+                    </v-layout>
+                </v-parallax>
+            </v-app>           
+        </div>
+
+        <div v-else>
+            <!-- list페이지  -->
+            <v-app style="font-family: 'Sunflower', sans-serif;">
+    
+                    <!-- navbar -->
+                    <nav class="v-toolbar v-toolbar--clipped v-toolbar--fixed elevation-6" style="margin-top:0px;padding-right:0px;padding-left:0px;transform:translateY(0px);">
+                        <div class="v-toolbar__content" flat style="height:58px">
+                            <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+                            <v-toolbar-title></v-toolbar-title>
+                            <v-spacer></v-spacer>
+                            <v-toolbar-items class="hidden-sm-and-down">
+                                <v-btn flat @click="logout">logout</v-btn>
+                            </v-toolbar-items>
+                        </div>
+                    </nav>   
+
+                    <!-- 카드 -->
+                    <v-layout row wrap>
+                        <v-flex class="move" xs12 sm6 md3 v-for="movie in movies" style="margin-bottom:350px;">                          
+                            <div class="panel" >
+                                    <div class="front card">
+                                        <template>
+                                            <!-- <v-hover> -->
+                                                <v-card
+                                                class="elevation-1"
+                                                width="344" style="margin-top:20px;">
+                                                <v-img :aspect-ratio="9/16" v-bind:src="movie.image_url"></v-img>
+                                                    <v-card-title>
+                                                        <div>
+                                                            <span class="headline">{{movie.movieNm}}</span>
+                                                            <div class="d-flex">
+                                                                <v-rating
+                                                                :value="movie.Participating"
+                                                                color="amber"
+                                                                dense
+                                                                half-increments
+                                                                readonly
+                                                                size="14"
+                                                                ></v-rating>
+                                                                <div class="ml-2 grey--text text--darken-2">
+                                                                    <span>{{ movie.Participating }}</span>
+                                                                    <span>({{ movie.rating }})</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <v-spacer></v-spacer>            
+                                                    </v-card-title>
+                                                </v-card>
+                                            <!-- </v-hover> -->
+                                        </template>
+                                    </div>
+                                    <div class="back card">
+                                        <!-- <v-layout>
+                                            <v-flex xs12 sm6 offset-sm3> -->
+                                                <v-card width="344" style="margin-top:20px;">
+                                                    <v-img v-bind:src="movie.image_url" :aspect-ratio="9/16"></v-img>
+                                                    <v-card-title primary-title>
+                                                        <div>
+                                                        <h3 class="headline mb-0">{{movie.movieNm}}</h3>
+                                                        <strong >{{movie.score_reples[0]}}</strong>
+                                                        <h5>{{movie.story}}</h5>
+                                                        </div>
+                                                    </v-card-title>
+                                        
+                                                    <v-card-actions>
+                                                        <v-btn flat color="orange">평점주기</v-btn>
+                                                        <v-btn icon @click="movie.show1 = !movie.show1">
+                                                            <v-icon>{{ movie.show1 ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}</v-icon>
+                                                        </v-btn>
+                                                        <v-btn flat color="orange">글남기기</v-btn>
+                                                        <v-btn icon @click="movie.show2 = !movie.show2">
+                                                            <v-icon>{{ movie.show2 ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}</v-icon>
+                                                        </v-btn>
+                                                        <v-dialog v-model="movie.dialog" full-width>
+                                                            <template v-slot:activator="{ on }">
+                                                                <v-btn icon class="mr-0" v-on="on">
+                                                                    <v-icon>fas fa-chevron-right</v-icon>
+                                                                </v-btn>
+                                                            </template>
+                                                            <template>
+                                                                <div>
+                                                                    <v-toolbar color="gery" dark tabs>
+                                                                        <template>
+                                                                            <v-tabs
+                                                                                v-model="currentItem"
+                                                                                color="transparent"
+                                                                                fixed-tabs
+                                                                                slider-color="yellow"
+                                                                            >
+                                                                                <v-tab
+                                                                                v-for="item in items"
+                                                                                :key="item"
+                                                                                :href="'#tab-' + item"
+                                                                                >
+                                                                                {{ item }}
+                                                                                </v-tab>
+                                                                            </v-tabs>
+                                                                        </template>
+                                                                    </v-toolbar>
+                                                                    <!-- 수정한 부분 -->
+                                                                    <v-tabs-items v-model="currentItem" style="font-family: 'Poor Story', cursive; ">
+                                                                        <v-tab-item 
+                                                                        :key="items[0]"
+                                                                        :value="'tab-'+items[0]"
+                                                                        >
+                                                                            <v-card flat>
+                                                                                <v-container fluid style="padding:0px ">
+                                                                                    <v-layout row>
+                                                                                        <v-flex style="padding:0px">
+                                                                                            <div  style="padding:150px 150px;opacity:0.8;color:white; min-height: 100%; background-position: center; background-size: cover;"  v-bind:style="{ backgroundImage: 'url(\'' + movie.large_image[0] + '\')' }">
+                                                                                                <div style="background-color:#00000047; font-size:20px;">
+                                                                                                    <v-card-text >
+                                                                                                        <h1 style="font-size:50px;">{{ movie.movieNm }}</h1>
+                                                                                                        <v-btn color="error">평균평점 : {{movie.Participating}}</v-btn>
+                                                                                                        {{movie.watchGradeNm}} | {{movie.showTm}}분
+                                                                                                    </v-card-text>
+                                                                                                    <v-card-text >    
+                                                                                                        <h3>{{ movie.score_reples[0] }}</h3> 
+                                                                                                    </v-card-text>
+                                                                                                    <v-card-text >
+                                                                                                        <h5>{{ movie.story }}</h5>
+                                                                                                    </v-card-text>
+                                                                                                    <v-card-text>
+                                                                                                        <p>감독     {{movie.actors[0]}}</p>
+                                                                                                        <p>출연     {{movie.actors[1]}} | {{movie.actors[2]}} | {{movie.actors[3]}}</p>
+                                                                                                        <p>장르     {{movie.genres[0]}} | {{movie.genres[1]}} | {{movie.genres[2]}}</p>
+                                                                                                    </v-card-text>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </v-flex>
+                                                                                    </v-layout>
+                                                                                </v-container>
+                                                                            </v-card>
+                                                                        </v-tab-item>
+
+                                                                        <v-tab-item 
+                                                                        :key="items[1]"
+                                                                        :value="'tab-'+items[1]"
+                                                                        >
+                                                                            <v-card flat>
+                                                                                <v-container fluid style="padding:0px">
+                                                                                    <div style="padding:150px 150px; color:white; min-height: 100%; background-position: center; background-size: cover;" v-bind:style="{ backgroundImage: 'url(\'' + movie.large_image[1] + '\')' }">
+                                                                                        <div style="padding:0px; background-color:#00000047; font-size:20px;">
+                                                                                            <v-layout row>
+                                                                                                <v-flex >
+                                                                                                    <v-card-text>
+                                                                                                        <h1 style="font-size:50px;">{{ movie.movieNm }}</h1>
+                                                                                                        <v-btn color="error">평균평점 : {{movie.Participating}}</v-btn>
+                                                                                                        {{movie.watchGradeNm}} | {{movie.showTm}}분
+                                                                                                    </v-card-text>
+                                                                                                </v-flex>
+                                                                                            </v-layout>
+                                                                                            <v-layout row>
+                                                                                                <v-flex shrink>
+                                                                                                    <v-card-text>
+                                                                                                        <h2 style="font-size:25px">감독</h3>
+                                                                                                        <p>{{movie.actors[0]}}</p>
+                                                                                                        <h2 style="font-size:25px">배우</h3>
+                                                                                                        <p>{{movie.actors[1]}}</p>
+                                                                                                        <p>{{movie.actors[2]}}</p>
+                                                                                                        <p>{{movie.actors[3]}}</p>
+                                                                                                        <p>{{movie.actors[4]}}</p>
+                                                                                                    </v-card-text>
+                                                                                                </v-flex>
+                                                                                                <v-flex grow pa-1>
+                                                                                                        <p>평균별점: <v-rating
+                                                                                                            :value="movie.Participating"
+                                                                                                            color="amber"
+                                                                                                            dense
+                                                                                                            half-increments
+                                                                                                            readonly
+                                                                                                            size="14"
+                                                                                                            ></v-rating> {{ movie.rating }}</p>
+                                                                                                    <h3>코멘트</h3>
+                                                                                                    <br>
+                                                                                                    <p>{{movie.score_reples[0]}}</p>
+                                                                                                    <p>{{movie.score_reples[1]}}</p>
+                                                                                                </v-flex>  
+                                                                                            </v-layout>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </v-container>
+                                                                            </v-card>
+                                                                        </v-tab-item>
+
+                                                                        <v-tab-item 
+                                                                        :key="items[2]"
+                                                                        :value="'tab-'+items[2]"
+                                                                        >
+                                                                            <v-card flat>
+                                                                                <v-container fluid style="padding:0px">
+                                                                                    <v-layout row wrap>
+                                                                                        <v-flex style="padding:0px">
+                                                                                            <div style="padding:150px 150px; color:white; min-height: 100%; background-position: center; background-size: cover;" v-bind:style="{ backgroundImage: 'url(\'' + movie.large_image[2] + '\')' }">
+                                                                                                <v-card-text >
+                                                                                                    유투브
+                                                                                                </v-card-text>
+                                                                                            </div>
+                                                                                        </v-flex>
+                                                                                    </v-layout>
+                                                                                </v-container>
+                                                                            </v-card>
+                                                                        </v-tab-item>
+                                                                    </v-tabs-items>
+                                                                </div>
+                                                            </template>
+                                                        </v-dialog>
+                                                    </v-card-actions>
+                                                    <v-slide-y-transition>
+                                                            <v-card-text v-show="movie.show1">
+                                                                평점주기
+                                                                <!-- <v-rating :value="movie.Participating/" color="amber" dense half-increments readonly size="14"></v-rating> -->
+                                                                <div class="text-xs-center mt-5">
+                                                                    <v-rating
+                                                                        v-model="movie.newScore"
+                                                                        color="yellow darken-3"
+                                                                        background-color="grey darken-1"
+                                                                        empty-icon="$vuetify.icons.ratingFull"
+                                                                        half-increments
+                                                                        hover
+                                                                    ></v-rating>
+                                                                </div>
+                                                            </v-card-text>
+                                                    </v-slide-y-transition>
+                                                    <v-slide-y-transition>
+                                                            <v-card-text v-show="movie.show2">
+                                                                글남기기
+                                                                <v-textarea append-icon="far fa-smile-wink" value="이곳에 영화평을 남겨 주세요!!"></v-textarea>
+                                                                <v-btn>확인</v-btn>
+                                                            </v-card-text>
+                                                    </v-slide-y-transition>
+                                                    <v-slide-y-transition>
+                                                        
+                                                    </v-slide-y-transition>
+                                                </v-card>
+                                            <!-- </v-flex>
+                                        </v-layout> -->
+                                    </div>
+                            </div>
+                    </v-flex>
+                </v-layout>
+    
+                </v-container>
+                <!-- sidebar-->
+                <v-navigation-drawer v-model="drawer" absolute temporary>
+                    <v-list class="pa-1">
+                        <v-list-tile avatar>
+                            <v-list-tile-avatar>
+                                <img src="./따봉.jpg">
+                            </v-list-tile-avatar>
+                            
+                            <v-list-tile-content>
+                                <v-list-tile-title style="font-size:20px;">{{loginUsername}}님</v-list-tile-title>
+                            </v-list-tile-content>
+                        </v-list-tile>
+                    </v-list>
+                    <v-divider></v-divider>
+                    <v-list>
+                        <v-list-tile>
+                            <v-list-tile-action>
+                                <v-icon>fas fa-headphones</v-icon>
+                            </v-list-tile-action>
+                            <v-list-tile-title>Music</v-list-tile-title>
+                        </v-list-tile>
+                        
+                        <v-list-group prepend-icon="fas fa-film" value="true">
+                            <template v-slot:activator>
+                                <v-list-tile>
+                                    <v-list-tile-title>Movies</v-list-tile-title>
+                                </v-list-tile>
+                            </template>
+                            <v-list-group no-action sub-group value="true">
+                                <template v-slot:activator>
+                                    <v-list-tile>
+                                        <v-list-tile-title>Free movies</v-list-tile-title>
+                                        <v-list-tile-action>
+                                            <v-icon>fab fa-creative-commons-nc</v-icon>
+                                        </v-list-tile-action>
+                                    </v-list-tile>
+                                </template>
+                                
+                                <v-list-tile v-for="(siteIcon, i) in siteIcons" :key="i" @click="">
+                                    <v-list-tile-title v-text="siteIcon[0]"></v-list-tile-title>
+                                    <v-list-tile-action>
+                                        <v-icon v-text="siteIcon[1]"></v-icon>
+                                    </v-list-tile-action>
+                                </v-list-tile>
+                            </v-list-group>
+                            
+                            <v-list-group sub-group no-action>
+                                <template v-slot:activator>
+                                    <v-list-tile>
+                                        <v-list-tile-title>Actions</v-list-tile-title>
+                                    </v-list-tile>
+                                </template>
+                                <v-list-tile v-for="(crud, i) in cruds" :key="i" @click="">
+                                    <v-list-tile-title v-text="crud[0]"></v-list-tile-title>
+                                    <v-list-tile-action>
+                                        <v-icon v-text="crud[1]"></v-icon>
+                                    </v-list-tile-action>
+                                </v-list-tile>
+                            </v-list-group>
+                        </v-list-group>
+                        
+                        <v-list-tile>
+                            <v-list-tile-action>
+                                <v-icon>far fa-images</v-icon>
+                            </v-list-tile-action>
+                            <v-list-tile-title>Pictures</v-list-tile-title>
+                        </v-list-tile>
+                        
+                        <v-divider></v-divider>
+                        
+                        <v-list-tile>
+                            <v-list-tile-action>
+                                <v-icon>fa fa-list</v-icon>
+                            </v-list-tile-action>
+                            <v-list-tile-title>My playlist</v-list-tile-title>
+                        </v-list-tile>
+                        
+                        <v-list-tile>
+                            <v-list-tile-action>
+                                <v-icon>far fa-calendar-alt</v-icon>
+                            </v-list-tile-action>
+                            <v-list-tile-title>Recent events</v-list-tile-title>
+                        </v-list-tile>
+                        
+                        <v-divider></v-divider>
+                        
+                        <v-list-tile>
+                            <v-list-tile-action>
+                                <v-icon>fas fa-cog</v-icon>
+                            </v-list-tile-action>
+                            <v-list-tile-title>Accounts settings</v-list-tile-title>
+                        </v-list-tile>
+
+                        <v-list-tile>
+                            <v-list-tile-action>
+                                <v-icon>fas fa-door-open</v-icon>
+                            </v-list-tile-action>
+                            <v-list-tile-title>logout</v-list-tile-title>
+                        </v-list-tile>
+                    </v-list>
+                </v-navigation-drawer>
+            </v-app>
+        </div>
     </div>
+        
+        
 
-    <!-- <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>    -->
-    <script>
-        // 서비스를 사용하겠다라고 선언?만 한것
-        var config = {
-            apiKey: "AIzaSyCpbL7Hh6I26gC4DYU0p87t_SECP1kpk8Y",
-            databaseURL: "https://my-todo-cc559.firebaseio.com",
-            projectId: "my-todo-cc559",
-        };
-        firebase.initializeApp(config);
-
-        const database = firebase.database()
-
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script>
         const app = new Vue({
             el:"#app",
-            data:{
-                title:"MyTodo",
-                newTodo:'',
-                status:'all',
-            },
-            firebase:{
-                todos:database.ref('todos')
-            },
-            methods:{
-                addTodo:function(){
-                    // firebase로 연결된 reference에다가 push
-                    this.$firebaseRefs.todos.push(
-                        {id:Date.now(),content:this.newTodo,complete:false}
-                    )
-                    this.newTodo = ''
-                },
-                delTodo:function(todo){
-                    this.$firebaseRefs.todos.child(todo['.key']).remove()
-                },
-                todosByStatus:function(){
-                    if(this.status == "active"){
-                        return this.todos.filter((todo)=>{
-                            return !todo.completed
-                        })
-                    } else if(this.status == "completed"){
-                        // true값인 배열의 결과를 리턴
-                        return this.todos.filter((todo)=>{
-                            return todo.completed
-                        })
-                    } else{
-                        return this.todos
-                    }
-                },
-                updateTodo:function(todo){
-                    // 열거형 표현법
-                    const editTodo = {...todo}
-                    // .key라는 정보를 지움
-                    delete editTodo['.key']
-                    // 새로 붙이기
-                    this.$firebaseRefs.todos.child(todo['.key']).set(editTodo)
-                },
-            },
-            watch:{
-                // todos에 변화가 일어나면 todoStorage.save 실행
-                todos:{
-                    handler:function(todos){
-                       todoStorage.save(todos)
+            data:()=>({
+                text:'여기에 이게 나옴?',
+                token:'',
+                signupStatus: false,
+                singupDialog: false,
+                dialog: false,
+                form1:false,
+                form2:false,
+                agreement: false,
+                signupUsername:'',
+                signupPassword:'',
+                signupEmail:'',
+                loginUsername:'',
+                loginPassword:'',
+                loginEmail:'',
+                // 배포용
+                serverUrl: "http://pjt-10-dev.ap-northeast-2.elasticbeanstalk.com",
+                // test용
+                // serverUrl: "http://homeworkshop-dongsik93.c9users.io:8080",
+                drawer: null,
+                rules:{
+                    // 회원가입 검증
+                    email: v => {
+                        const emailRegExp = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i
+                        const result = (v || '').match(emailRegExp)
+                        if (result) {
+                            return true
+
+                        } else {
+                            return 'Please enter a valid email'
+                        }
                     },
-                    // todos자체(전체)가 변하는걸 바라보고 있던걸, completed가 변화하고 있는걸 감지해서 실행하겠다라는 의미
-                    deep:true
-                }
-            }
+                    length: (len) => {
+                        return (v => {
+                            if((v || '').length >= len){
+                                return true
+                            } else {
+                                return `Invalid character length, required ${len}`
+                            }
+                        })
+                    },
+                    password: v => {
+                        const passwordRegExp = /^(?=.*[a-zA-Z])((?=.*\d)|(?=.*\W)).{6,20}$/
+                        const result = (v || '').match(passwordRegExp)
+                        if (result) {
+                            return true
+
+                        } else {
+                            return 'Password must contain an upper case letter, a numeric character, and a special character'
+                        }
+                    },
+                },
+                currentItem: 'tab-기본정보',
+                items: [
+                    "기본정보","상세정보","미리보기",
+                ],
+                text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.'
+                ,
+                movies:[
+                    {
+                    },
+                ],
+                siteIcons: [
+                    ['Best-sellers', 'far fa-thumbs-up'],
+                    ['New Movies', 'mdi-new-box'],
+                    ['Discounts', 'fas fa-dollar-sign'],
+
+                ],
+                cruds: [
+                    ['Create', 'add'],
+                    ['Read', 'insert_drive_file'],
+                    ['Update', 'update'],
+                    ['Delete', 'delete']
+                ],
+                hovers:[
+                    [413,4.5],
+                ],
+            }),
+            methods:{
+                
+                logout () {
+                    const signUpPath = '/rest-auth/logout/'
+
+                    axios.get(`${this.serverUrl}${signUpPath}`)
+                        .then(res => {
+                            if (res.status === 200) {
+                                // 성공적으로 로그아웃이 될 경우
+                                location.href="file:///C:/Users/student/Desktop/project/project/homepage.html"
+                            }
+                        })
+                        .catch(e => {
+                            console.log(e)
+                    })
+                },
+                login () {
+                    const username = this.loginUsername;
+                    const password = this.loginPassword;
+                    const email = this.loginEmail;
+
+                    const loginPath = '/rest-auth/login/'
+
+                    if (!username || !password ||  !email) {
+                        return false;
+                    }
+                    axios.post(`${this.serverUrl}${loginPath}`, { "username":username,"email":email, "password":password})
+                        .then(res => {
+                            if (res.status === 200) {
+                                console.log(res)
+                                this.token = res.data.token
+                                console.log(this.token)
+                                const space = ' '
+                                // 성공적으로 로그인 되었을 경우
+                                // dataGet()
+                                axios.get(`${this.serverUrl}/api/v1/movies`,{'headers':{'Authorization':`JWT ${this.token}`}})
+                                    .then((r)=>{
+                                        console.log(r)
+                                        const movies = r.data
+                                        this.movies = movies.map((m)=>{
+                                            const part = m.Participating * 1
+                                            // 수정
+                                            const reple = eval(m.score_reples)
+                                            const genre = eval(m.genres)
+                                            const act_img = eval(m.actors_img)
+                                            const actor = eval(m.actors)
+                                            const act_role = eval(m.actors_role)
+                                            const large_img = eval(m.large_image)
+
+                                            return {...m, newScore:0,dialog:false, 
+                                                        Participating:part,score_reples:reple,genres:genre,
+                                                        actors_img:act_img, actors_role:act_role,actors:actor,
+                                                        large_image:large_img,
+                                                        show1:false,show2:false}
+                                        })
+                                    })
+                                    .catch((e)=>{console.log(e)})
+                                        }
+                                    })
+                        .catch(e => {
+                            console.log(e)
+                    })
+                },
+                signup(){
+                    const username = this.signupUsername;
+                    const password1 = this.signupPassword;
+                    const password2 = this.signupPassword;
+                    const email = this.signupEmail;
+
+                    const signUpPath = '/rest-auth/registration/'
+
+                    if (!username || !password1 || !password2 || !email) {
+                        return false;
+                    }
+                    console.log(`${this.serverUrl}${signUpPath}`)
+                    axios.post(`${this.serverUrl}${signUpPath}`, { "username":username,"email":email, "password1":password1, "password2":password2})
+                        .then(res => {
+                            console.log(res)
+                            if (res.status === 200) {
+                                // 성공적으로 회원가입이 되었을 경우
+                                console.log("회원가입성공")
+                                console.log(res)
+                            }
+                        })
+                        .catch(e => {
+                            console.log(e)
+                    })
+                },
+                // dataGet(){
+                //     axios.get(`${this.serverUrl}/api/v1/movies`,{'headers':{'Authorization':`'JWT ${this.token}'`}})
+                //         .then((r)=>{
+                //             console.log(r)
+                //             const movies = r.data
+                //             this.movies = movies.map((m)=>{
+                //                 return {...m, newScore:""}
+                //             })
+                //         })
+                //         .catch((e)=>{
+                //             console.log(e)
+                //         })
+                // }
+
+            },
+            // mounted:function(){
+            //     axios.get(`${this.serverUrl}/api/v1/movies`,{'headers':{'Authorization':'JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo3LCJ1c2VybmFtZSI6ImRhdGEiLCJleHAiOjE1NTc5MDMyNjMsImVtYWlsIjoiZGF0YUBuYXZlci5jb20ifQ.QQ2lQmsACE8SME3srDIRcjItS5MkO7OeKNqUEADBzDs'}})
+            //     .then((r)=>{
+            //         console.log(r)
+            //         const movies = r.data
+            //         this.movies = movies.map((m)=>{
+            //             return {...m, newScore:""}
+            //         })
+                    
+
+            //     })
+            //     .catch((e)=>{console.log(e)})
+            // },
+
         })
     </script>
+
 
 </body>
 </html>
